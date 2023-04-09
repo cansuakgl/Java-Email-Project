@@ -1,0 +1,333 @@
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Scanner;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.NoSuchElementException;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Properties;
+
+
+public class Main{
+    
+    public static class Uye{
+        
+    String ad;
+    String soyad;
+    String email;
+    
+    public void uyeBilgisiAl(){
+        
+        this.ad="";
+        this.soyad="";
+        
+        Scanner sc = new Scanner(System.in);
+        
+        System.out.print("Uye ismi:\t");
+        String tempAd = sc.nextLine();
+        
+        this.ad += Character.toUpperCase(tempAd.charAt(0));
+        for(int i=1; i<tempAd.length(); i++)
+        this.ad += Character.toLowerCase(tempAd.charAt(i));
+        
+        System.out.print("Uye soyismi:\t");
+        String tempSoyad = sc.nextLine();
+        
+        this.soyad += Character.toUpperCase(tempSoyad.charAt(0));
+        for(int j=1; j<tempSoyad.length(); j++)
+        this.soyad += Character.toLowerCase(tempSoyad.charAt(j));
+        
+        System.out.print("Uye email'i:\t");
+        this.email = sc.nextLine();
+        
+        System.out.println("\nUye olusturuldu: "+ this.ad + "\t" + this.soyad + "\t" + this.email + "\n");
+        
+    }
+        
+    }
+    
+    public static class elitUye extends Uye{
+        public void UyeDosyaYaz(){
+            try {
+                String tempLines = "";
+                String tempDosya = "";
+                
+                File UyeListesi = new File("UyeListesi.txt");
+                Scanner fileScanner = new Scanner(UyeListesi);
+                
+                while (fileScanner.hasNextLine()){
+                    tempDosya += fileScanner.nextLine() + "\n";
+                }
+                
+                Scanner fileScanner1 = new Scanner(UyeListesi);
+                
+                while (fileScanner1.hasNextLine()){
+                    String line = fileScanner1.nextLine();
+                    
+                if (line.equals("-GENEL UYELER-"))
+                    tempLines += line + "\n";
+                    
+                    while (fileScanner1.hasNextLine()){
+                    tempLines += fileScanner1.nextLine() + "\n";
+                    }
+                }
+                
+                tempDosya = tempDosya.replace(tempLines," ");
+                
+                String uyeBilgisi = this.ad + "\t" + this.soyad + "\t" + this.email + "\n";
+                
+                tempDosya = tempDosya + uyeBilgisi  + tempLines; //flag
+            
+                FileWriter writer = new FileWriter("UyeListesi.txt");
+                writer.write(tempDosya);
+                writer.close();
+                fileScanner.close();
+                fileScanner1.close();
+                
+                
+            }
+            catch(IOException e) {
+                 e.printStackTrace();
+                 
+             }
+            
+        }}
+        
+    public static class genelUye extends Uye{
+        public void UyeDosyaYaz(){
+        try{
+            BufferedWriter uyeYaz  = new BufferedWriter(new FileWriter("UyeListesi.txt", true));
+            uyeYaz.write("\n" + this.ad + "\t" + this.soyad + "\t" + this.email);
+            uyeYaz.close();
+            
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        }
+    }
+    
+    static void dosyaOlustur(){
+        try{
+        File UyeListesi = new File("UyeListesi.txt");
+        
+        if (UyeListesi.createNewFile()){
+            FileWriter BaslikYaz = new FileWriter(UyeListesi);
+	        BaslikYaz.write("-ELIT UYELER-\n-GENEL UYELER-");
+	        BaslikYaz.close();
+        }
+        
+     }
+        catch (IOException e){
+            System.out.println("Hata");
+            e.printStackTrace();
+        }
+    }
+    
+    public static void main(String[] args) throws NoSuchElementException{
+		System.out.println("mail gonderme sistemi");
+		System.out.println("(1)-Elit uye ekleme\n(2)-Genel uye ekleme\n(3)-Mail Gonderme\n");
+		anaEkran();
+	}
+	
+    static void anaEkran(){
+        
+        System.out.print("seciminiz: ");
+        Scanner sc = new Scanner(System.in);
+		int secim = sc.nextInt();
+		
+		
+	    switch(secim){
+		    case 1:{
+		        System.out.println("\n--Elit uye olusturma--\n");
+		        elitUye elituye = new elitUye();
+		        
+		        elituye.uyeBilgisiAl();
+		        dosyaOlustur();
+		        elituye.UyeDosyaYaz();
+		        }
+		        break;
+		    case 2:{
+		        System.out.println("\n--Genel uye olusturma--\n");
+		        genelUye geneluye = new genelUye();
+		        
+		        geneluye.uyeBilgisiAl();
+		        dosyaOlustur();
+		        geneluye.UyeDosyaYaz();
+		        }
+		        break;
+		    case 3:{
+		        System.out.println("\n(1)-Elit uyelere mail gonder\n(2)-Genel uyelere mail gonder\n(3)-Tum uyelere mail gonder\n");
+                System.out.print("seciminiz: ");
+                int secim2 = sc.nextInt();
+                mailGonder(emailAyır(secim2));
+		        }
+		        break;
+		    default :{
+		        System.out.println("gecersiz giris, tekrar secin:");
+		        anaEkran();
+		    }
+		    
+	    }
+    }
+
+    public static String[] emailAyır(int secim){
+        
+        String tempLines1="";
+        String tempLines2="";
+        
+        String genelUyelerString="";
+        
+        try{
+             
+            File UyeListesi1 = new File("UyeListesi.txt");
+            Scanner fileScanner1 = new Scanner(UyeListesi1);
+        
+        while (fileScanner1.hasNextLine()){
+                    String line1 = fileScanner1.nextLine();
+                    
+                if (line1.equals("-ELIT UYELER-")){
+                    
+                    while (fileScanner1.hasNextLine()){
+                    tempLines1 += fileScanner1.nextLine() + "\n";
+                    }
+                }
+        }
+                
+            File UyeListesi2 = new File("UyeListesi.txt");        
+            Scanner fileScanner2 = new Scanner(UyeListesi2);
+        
+        
+        while (fileScanner2.hasNextLine()){
+                    String line2 = fileScanner2.nextLine();
+                    
+                if (line2.equals("-GENEL UYELER-")){
+                    while (fileScanner2.hasNextLine()){
+                    genelUyelerString += fileScanner2.nextLine() + "\n";}
+                    }
+                }
+                
+        tempLines2 += "-GENEL UYELER-" + "\n" + genelUyelerString;
+        
+        String elitUyelerString = tempLines1.replace(tempLines2,"");
+        
+        String GenelUyelerArray[] = genelUyelerString.split("\\s");
+        
+        String ElitUyelerArray[] =  elitUyelerString.split("\\s");
+        
+        ArrayList<String> elitUyeArrayList = new ArrayList<String>();
+        ArrayList<String> genelUyeArrayList = new ArrayList<String>();
+        
+        
+        for(int j=0; j<GenelUyelerArray.length ;j++){
+        if (GenelUyelerArray[j].contains(".com") || GenelUyelerArray[j].contains("@")){
+        genelUyeArrayList.add(GenelUyelerArray[j]);
+            }
+        }
+        
+        for(int i=0; i<ElitUyelerArray.length ;i++){
+            
+        if (ElitUyelerArray[i].contains(".com") || ElitUyelerArray[i].contains("@")){
+        elitUyeArrayList.add(ElitUyelerArray[i]);
+            }
+        }
+        
+        String ElitEmail[] = new String[elitUyeArrayList.size()];
+        
+        for(int k=0; k<elitUyeArrayList.size(); k++){
+            ElitEmail[k] = elitUyeArrayList.get(k);
+        }
+        
+        String GenelEmail[] = new String[genelUyeArrayList.size()];
+        
+        for(int m=0; m<genelUyeArrayList.size(); m++){
+            GenelEmail[m] = genelUyeArrayList.get(m);
+        }
+        
+        String TumEmail[] = new String[GenelEmail.length + ElitEmail.length];
+
+        System.arraycopy(GenelEmail, 0, TumEmail, 0, GenelEmail.length);
+        System.arraycopy(ElitEmail, 0, TumEmail, GenelEmail.length, ElitEmail.length);
+        
+        fileScanner1.close();
+        fileScanner2.close();
+        
+        if (secim == 1)
+        return ElitEmail;
+        if (secim == 2)
+        return GenelEmail;
+        if (secim == 3 )
+        return TumEmail;
+        
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        return new String[0];
+    }
+    
+    static void mailGonder(String Array[]){
+    	
+    	
+    	String Alici[] = new String[Array.length];
+    	
+    	for (int i=0; i<Array.length ; i++)
+    	Alici[i] = Array[i];
+    	
+    	String Gonderen ="ada50ada100@hotmail.com";
+    	String Sifre ="20012004c";
+    	
+    	String Host ="smtp.office365.com";
+    			
+    	Properties properties = new Properties();
+
+        properties.put("mail.smtp.host", Host);
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.starttls.enable", "true");
+        properties.put("mail.smtp.port", "587");
+    	
+        Session session = Session.getInstance(properties,
+           new javax.mail.Authenticator() {
+              protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
+                 return new javax.mail.PasswordAuthentication(Gonderen,Sifre);
+              }
+           });
+
+        try {
+        	
+           Message Mesaj = new MimeMessage(session);
+           Mesaj.setFrom(new InternetAddress(Gonderen));
+
+           InternetAddress[] Alicilar = new InternetAddress[Alici.length];
+           
+           for (int i=0; i<Alici.length; i++) 
+             Alicilar[i] = new InternetAddress(Alici[i]);
+           
+           Mesaj.setRecipients(Message.RecipientType.TO, Alicilar);
+           
+           
+           Scanner sc = new Scanner(System.in);
+           
+           System.out.print("\nEmail konusu : ");
+           String MesajKonusu = sc.nextLine();
+           System.out.println("Mesajiniz : ");
+           String AnaMesaj = sc.nextLine();
+
+           Mesaj.setSubject(MesajKonusu);
+           Mesaj.setText(AnaMesaj);
+
+           Transport.send(Mesaj);
+           System.out.println("Emailiniz gonderildi");
+        } catch (MessagingException e) {
+           throw new RuntimeException(e);
+        }
+     }}
+  
+    	
