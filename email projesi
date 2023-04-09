@@ -1,3 +1,4 @@
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -19,9 +20,9 @@ public class Main{
     
     public static class Uye{
         
-    String ad;
-    String soyad;
-    String email;
+    public String ad;
+    public String soyad;
+    public String email;
     
     public void uyeBilgisiAl(){
         
@@ -281,8 +282,6 @@ public class Main{
     	for (int i=0; i<Array.length ; i++)
     	Alici[i] = Array[i];
     	
-    	String Gonderen ="";
-    	String Sifre ="";
     	
     	String Host ="smtp.office365.com";
     			
@@ -292,6 +291,15 @@ public class Main{
         properties.put("mail.smtp.auth", "true");
         properties.put("mail.smtp.starttls.enable", "true");
         properties.put("mail.smtp.port", "587");
+    	
+        
+        Scanner Scanner = new Scanner(System.in);
+        
+        
+        System.out.print("Gonderen email :");
+        String Gonderen =  Scanner.nextLine();
+        System.out.print("Gonderen email sifresi : ");
+        String Sifre = Scanner.nextLine();
     	
         Session session = Session.getInstance(properties,
            new javax.mail.Authenticator() {
@@ -330,4 +338,5 @@ public class Main{
         }
      }}
   
+    	
     	
